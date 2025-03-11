@@ -145,9 +145,6 @@ class StickerGeneratorApp(QWidget):
         self.generate_1_standard_sticker_input = QLineEdit()
         self.generate_1_standard_sticker_input.setPlaceholderText("Всі 4 цифри номеру")
 
-        self.size_IME_standard_label = QLabel("Розмір (99x99) без mm")
-        self.size_IME_standard_input = QLineEdit()
-
         self.izolate_voltage_IME_standard_label = QLabel("Напруга ізоляції, після '+' / до 'кВ'")
         self.izolate_voltage_IME_standard_input = QLineEdit()
 
@@ -198,6 +195,12 @@ class StickerGeneratorApp(QWidget):
 
         self.add_3_checkbox_box = QCheckBox("Додати 3 в кінці артикула")
 
+        self.size_IME_box_label = QLabel("Розмір (99x99) без mm")
+        self.size_IME_box_input = QLineEdit()
+
+        self.izolate_voltage_IME_box_label = QLabel("Напруга ізоляції, після '+' / до 'кВ'")
+        self.izolate_voltage_IME_box_input = QLineEdit()
+
         # Встановлюємо рамку для QLineEdit
         self.art_seria_IME_box_input.setStyleSheet("QLineEdit { border: 1px solid gray; }")
         self.seria_IME_box_input.setStyleSheet("QLineEdit { border: 1px solid gray; }")
@@ -205,6 +208,8 @@ class StickerGeneratorApp(QWidget):
         self.box_count_IME_box_input.setStyleSheet("QLineEdit { border: 1px solid gray; }")
         self.year_IME_box_input.setStyleSheet("QLineEdit { border: 1px solid gray; }")
         self.week_IME_box_input.setStyleSheet("QLineEdit { border: 1px solid gray; }")
+        self.size_IME_box_input.setStyleSheet("QLineEdit { border: 1px solid gray; }")
+        self.izolate_voltage_IME_box_input.setStyleSheet("QLineEdit { border: 1px solid gray; }")
 
         self.generate_IME_box_button = QPushButton("Згенерувати PDF")
         self.generate_IME_box_button.clicked.connect(self.generate_IME_box_pdfs)
@@ -330,6 +335,16 @@ class StickerGeneratorApp(QWidget):
         input_layout.addWidget(self.add_3_checkbox_box, 9, 0, 1, 2)
         self.add_3_checkbox_box.setVisible(False)
 
+        input_layout.addWidget(self.size_IME_box_label, 10, 0)
+        input_layout.addWidget(self.size_IME_box_input, 10, 1)
+        self.size_IME_box_label.setVisible(False)
+        self.size_IME_box_input.setVisible(False)
+
+        input_layout.addWidget(self.izolate_voltage_IME_box_label, 11, 0)
+        input_layout.addWidget(self.izolate_voltage_IME_box_input, 11, 1)
+        self.izolate_voltage_IME_box_label.setVisible(False)
+        self.izolate_voltage_IME_box_input.setVisible(False)
+
         self.boxes_tab.setLayout(input_layout)  # Встановлюємо layout для вкладки
 
     def select_standard_template(self):
@@ -374,6 +389,10 @@ class StickerGeneratorApp(QWidget):
             # Додаємо визначення чи шаблон спецільний
             self.is_box_special_template = selected_template.endswith("_box_special_1")
             self.add_3_checkbox_box.setVisible(self.is_box_special_template)
+            self.size_IME_box_label.setVisible(self.is_box_special_template)
+            self.size_IME_box_input.setVisible(self.is_box_special_template)
+            self.izolate_voltage_IME_box_label.setVisible(self.is_box_special_template)
+            self.izolate_voltage_IME_box_input.setVisible(self.is_box_special_template)
         else:
             self.template_path = ""
             self.template_pixmap = None
@@ -765,7 +784,10 @@ class StickerGeneratorApp(QWidget):
                                 bbox = x0, y0 + 1, a, b
                                 new_page.add_redact_annot(bbox, fill=[255, 255, 255])
                                 new_page.apply_redactions()
-                                x0_redac = 2 if int(va) > 9 else 0
+                                value = float(va.replace(',', '.'))
+                                x0_redac = 1 if value > 9 else 0
+                                if value != int(value):
+                                    x0_redac += 3
                                 new_page.insert_text((x0 - x0_redac, y0 + font_size + 1), va,
                                                      fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
                                                      fontname=font_name)
@@ -774,8 +796,11 @@ class StickerGeneratorApp(QWidget):
                                 bbox = x0, y0 + 1, a, b
                                 new_page.add_redact_annot(bbox, fill=[255, 255, 255])
                                 new_page.apply_redactions()
-                                x0_redac = 2 if int(va_cl_02) > 9 else 0
-                                new_page.insert_text((x0 - x0_redac, y0 + font_size + 0.5), va_cl_02,
+                                value = float(va_cl_02.replace(',', '.'))
+                                x0_redac = 2 if value > 9 else 0
+                                if value != int(value):
+                                    x0_redac += 2
+                                new_page.insert_text((x0 - x0_redac, y0 + font_size + 0.7), va_cl_02,
                                                      fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
                                                      fontname=font_name)
 
@@ -783,7 +808,10 @@ class StickerGeneratorApp(QWidget):
                                 bbox = x0, y0 + 1, a, b
                                 new_page.add_redact_annot(bbox, fill=[255, 255, 255])
                                 new_page.apply_redactions()
-                                x0_redac = 1 if int(va_cl_05s) > 9 else 0
+                                value = float(va_cl_05s.replace(',', '.'))
+                                x0_redac = 1 if value > 9 else 0
+                                if value != int(value):
+                                    x0_redac += 2
                                 new_page.insert_text((x0 - x0_redac, y0 + font_size + 1), va_cl_05s,
                                                      fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
                                                      fontname=font_name)
@@ -983,8 +1011,8 @@ class StickerGeneratorApp(QWidget):
                             new_page.add_redact_annot(bbox, fill=[255, 255, 255])
                             new_page.apply_redactions()
                             three = "3" if self.add_3_checkbox_box.isChecked() else ""
-                            new_page.insert_text((x0 + 1, y0 + font_size),
-                                                 f"{self.art_seria_IME_box_input.text()}{letter}{local_nominal}{three}S+0,8/1,2кВ",
+                            new_page.insert_text((x0 + 3, y0 + font_size),
+                                                 f"{self.art_seria_IME_box_input.text()}{letter}{local_nominal}{three}S+{self.izolate_voltage_IME_box_input.text()}кВ",
                                                  fontsize=font_size,
                                                  color=(0, 0, 0),
                                                  fontfile=font_path, fontname=font_name)
@@ -1042,15 +1070,12 @@ class StickerGeneratorApp(QWidget):
                                                  color=(0, 0, 0),
                                                  fontfile=font_path, fontname=font_name)
 
+                        size = self.size_IME_box_input.text()
                         if re.match(r"32x65mm 6$", span_text):
                             x0, y0, a, b = bbox
                             bbox = x0, y0, a, b
                             new_page.add_redact_annot(bbox, fill=[255, 255, 255])
                             new_page.apply_redactions()
-                            new_page.insert_text((x0, y0 + font_size), "32x65mm ",
-                                                 fontsize=font_size,
-                                                 color=(0, 0, 0),
-                                                 fontfile=font_path, fontname=font_name)
 
                         if re.match(r"00/5AM.L$", span_text):
                             x0, y0, a, b = bbox
@@ -1058,7 +1083,7 @@ class StickerGeneratorApp(QWidget):
                             bbox = x0, y0, a, b
                             new_page.add_redact_annot(bbox, fill=[255, 255, 255])
                             new_page.apply_redactions()
-                            new_page.insert_text((x0 - 2, y0 + font_size), f"{nominal}/5AM.L LUNGO",
+                            new_page.insert_text((x0 - 32, y0 + font_size), f"{size}mm {nominal}/5AM.L LUNGO",
                                                  fontsize=font_size,
                                                  color=(0, 0, 0),
                                                  fontfile=font_path, fontname=font_name)
