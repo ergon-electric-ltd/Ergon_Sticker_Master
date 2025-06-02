@@ -289,7 +289,6 @@ class StickerGeneratorApp(QWidget):
         self.va_cl_02_IME_standard_input.setVisible(False)
         self.va_cl_05s_IME_standard_label.setVisible(False)
         self.va_cl_05s_IME_standard_input.setVisible(False)
-        self.add_3_checkbox.setVisible(False)
         self.izolate_voltage_IME_standard_label.setVisible(False)
         self.izolate_voltage_IME_standard_input.setVisible(False)
 
@@ -333,7 +332,6 @@ class StickerGeneratorApp(QWidget):
         input_layout.addWidget(self.preview_IME_box_button, 8, 0, 1, 2)  # span columns
 
         input_layout.addWidget(self.add_3_checkbox_box, 9, 0, 1, 2)
-        self.add_3_checkbox_box.setVisible(False)
 
         input_layout.addWidget(self.size_IME_box_label, 10, 0)
         input_layout.addWidget(self.size_IME_box_input, 10, 1)
@@ -363,7 +361,6 @@ class StickerGeneratorApp(QWidget):
             self.va_cl_02_IME_standard_input.setVisible(is_special_template)
             self.va_cl_05s_IME_standard_label.setVisible(is_special_template)
             self.va_cl_05s_IME_standard_input.setVisible(is_special_template)
-            self.add_3_checkbox.setVisible(is_special_template)
             self.izolate_voltage_IME_standard_label.setVisible(is_special_template)
             self.izolate_voltage_IME_standard_input.setVisible(is_special_template)
         else:
@@ -388,7 +385,6 @@ class StickerGeneratorApp(QWidget):
             self.display_template_preview(self.template_path)
             # Додаємо визначення чи шаблон спецільний
             self.is_box_special_template = selected_template.endswith("_box_special_1")
-            self.add_3_checkbox_box.setVisible(self.is_box_special_template)
             self.size_IME_box_label.setVisible(self.is_box_special_template)
             self.size_IME_box_input.setVisible(self.is_box_special_template)
             self.izolate_voltage_IME_box_label.setVisible(self.is_box_special_template)
@@ -688,6 +684,9 @@ class StickerGeneratorApp(QWidget):
                         # Заміна артикулу на кожній сторінці
                         if re.fullmatch(article_pattern, span_text):
                             local_nominal = nominal
+
+                            if self.add_3_checkbox.isChecked(): local_nominal += 3
+
                             letter = "B"
                             try:
                                 nominal_int = int(nominal)  # Перетворюємо nominal на ціле число
@@ -734,6 +733,7 @@ class StickerGeneratorApp(QWidget):
                                 nominal_int = int(nominal)
                                 if 100 <= nominal_int <= 999:
                                     letter = "C"
+                                    if self.add_3_checkbox.isChecked(): local_nominal = nominal_int + 3
                                 elif 1000 <= nominal_int <= 9999:
                                     letter = "D"
                                     local_nominal = nominal_int + 3
@@ -901,6 +901,7 @@ class StickerGeneratorApp(QWidget):
                                 nominal_int = int(nominal)  # Перетворюємо nominal на ціле число
                                 if 100 <= nominal_int <= 999:  # Перевіряємо, чи nominal 3-значне
                                     letter = "C"
+                                    if self.add_3_checkbox_box.isChecked(): local_nominal = nominal_int + 3
                                 elif 1000 <= nominal_int <= 9999:  # Перевіряємо, чи nominal 4-значне
                                     letter = "D"
                                     local_nominal = nominal_int + 3  # Обчислюємо local_nominal
