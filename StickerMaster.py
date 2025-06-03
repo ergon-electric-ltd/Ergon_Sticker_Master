@@ -750,13 +750,7 @@ class StickerGeneratorApp(QWidget):
                                 bbox = x0, y0 + 1, a, b
                                 new_page.add_redact_annot(bbox, fill=[255, 255, 255])
                                 new_page.apply_redactions()
-                                x0_offset = 0
-                                if len(va) == 2 or "," in va:
-                                    x0_offset = 2
-                                if "," in va and len(va) > 3:
-                                    x0_offset = 4
-
-                                new_page.insert_text((x0 - x0_offset, y0 + font_size - 0.1), va,
+                                new_page.insert_text((x0, y0 + font_size - 0.1), va,
                                                      fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
                                                      fontname=font_name)
 
@@ -764,12 +758,7 @@ class StickerGeneratorApp(QWidget):
                                 bbox = x0, y0 + 1, a, b
                                 new_page.add_redact_annot(bbox, fill=[255, 255, 255])
                                 new_page.apply_redactions()
-                                x0_offset = 0
-                                if len(va_cl_02) == 2 or "," in va_cl_02:
-                                    x0_offset = 2
-                                if "," in va_cl_02 and len(va_cl_02) > 3:
-                                    x0_offset = 4
-                                new_page.insert_text((x0 - x0_offset, y0 + font_size - 0.1), va_cl_02,
+                                new_page.insert_text((x0, y0 + font_size - 0.1), va_cl_02,
                                                      fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
                                                      fontname=font_name)
 
@@ -777,12 +766,7 @@ class StickerGeneratorApp(QWidget):
                                 bbox = x0, y0 + 1, a, b
                                 new_page.add_redact_annot(bbox, fill=[255, 255, 255])
                                 new_page.apply_redactions()
-                                x0_offset = 0
-                                if len(va_cl_05s) == 2 or "," in va_cl_05s:
-                                    x0_offset = 2
-                                if "," in va_cl_05s and len(va_cl_05s) > 3:
-                                    x0_offset = 3
-                                new_page.insert_text((x0 - x0_offset, y0 + font_size - 0.1), va_cl_05s,
+                                new_page.insert_text((x0, y0 + font_size - 0.1), va_cl_05s,
                                                      fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
                                                      fontname=font_name)
 
