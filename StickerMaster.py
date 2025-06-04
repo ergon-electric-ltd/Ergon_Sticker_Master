@@ -411,7 +411,7 @@ class StickerGeneratorApp(QWidget):
             page = doc[0]
 
             # Змінюємо матрицю для збільшення розміру
-            matrix = fitz.Matrix(3, 3)  # Збільшення в 4 рази (400%)
+            matrix = fitz.Matrix(2, 2)  # Збільшення в 4 рази (400%)
             pix = page.get_pixmap(matrix=matrix)
 
             # Конвертуємо за допомогою Pillow (якщо потрібно)
