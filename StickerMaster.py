@@ -565,6 +565,10 @@ class StickerGeneratorApp(QWidget):
             va_cl_05s = self.va_cl_05s_IME_standard_input.text()
             self.modify_IME_standart_pdf(self.template_path, doc_output, serial_number, date_code, nominal,
                                          va_cl_02s, short_prefix, va_cl_02, va_cl_05s)
+
+        elif "made" in self.template_path:
+            self.modify_IME_made_in_standrad_pdf(self.template_path, doc_output, serial_number, date_code, nominal, va, short_prefix)
+
         else:
             self.modify_IME_standart_pdf(self.template_path, doc_output, serial_number, date_code, nominal, va,
                                          short_prefix)
@@ -836,6 +840,9 @@ class StickerGeneratorApp(QWidget):
 
         doc.close()
 
+    def modify_IME_made_in_standrad_pdf(self, input_pdf, doc_output, serial_number, date_code, nominal, va, short_prefix):
+        pass
+
     def modify_IME_box_pdf(self, input_pdf, doc_output, date_code, nominal, seria):
         doc = fitz.open(input_pdf)
         date_pattern = r"\d{2}W\d{2}$"  # Шаблон для року і тижня
@@ -893,6 +900,7 @@ class StickerGeneratorApp(QWidget):
                                 print(f"Помилка: '{extracted_nominal}' не є дійсним числом.")
 
                         if re.match("TAS050С8003SЕ", span_text):
+                            x0, y0, a, b = bbox
                             local_nominal = nominal
                             letter = "B"
                             try:
@@ -920,6 +928,7 @@ class StickerGeneratorApp(QWidget):
                                                  fontname=font_name)
 
                         if re.match("TASS50D3003SЕ", span_text):
+                            x0, y0, a, b = bbox
                             local_nominal = nominal
                             letter = "B"
                             try:
@@ -1021,6 +1030,129 @@ class StickerGeneratorApp(QWidget):
         doc.close()
 
     def modify_IME_special_box_pdf(self, input_pdf, doc_output, nominal, seria):
+        doc = fitz.open(input_pdf)
+        year = self.year_IME_box_input.text()
+        week = self.week_IME_box_input.text()
+
+        for page in doc:
+            new_page = doc_output.new_page(width=page.rect.width, height=page.rect.height)
+            new_page.show_pdf_page(new_page.rect, doc, page.number)
+
+            text_blocks = page.get_text("dict")["blocks"]
+
+            for block in text_blocks:
+                for line in block.get("lines", []):
+                    for span in line.get("spans", []):
+                        span_text = span["text"]  # Поточний текст
+                        bbox = span["bbox"]  # Позиція тексту
+                        font_size = span["size"]  # Розмір шрифту
+                        font_name = span["font"]  # Назва шрифту
+
+                        font_path = self.font_mapping.get(font_name)
+
+                        print(span_text)
+
+                        if re.match(r"TASL50C6003S", span_text):
+                            x0, y0, a, b = bbox
+                            local_nominal = nominal
+                            letter = "B"
+                            try:
+                                nominal_int = int(nominal)  # Перетворюємо nominal на ціле число
+                                if 100 <= nominal_int <= 999:  # Перевіряємо, чи nominal 3-значне
+                                    letter = "C"
+                                elif 1000 <= nominal_int <= 9999:  # Перевіряємо, чи nominal 4-значне
+                                    letter = "D"
+                                    local_nominal = nominal_int + 3  # Обчислюємо local_nominal
+                                    x0 -= 2
+                                else:
+                                    # Обробка ситуації, коли nominal не 3-значне і не 4-значне
+                                    print("nominal має бути 3- або 4-значним числом.")
+                            except ValueError:
+                                # Обробка помилки, якщо nominal не можна перетворити на ціле число
+                                print("Помилка: nominal має бути цілим числом.")
+                            a -= 1
+                            bbox = x0, y0, a, b
+                            new_page.add_redact_annot(bbox, fill=[255, 255, 255])
+                            new_page.apply_redactions()
+                            three = "3" if self.add_3_checkbox_box.isChecked() else ""
+                            new_page.insert_text((x0 + 3, y0 + font_size),
+                                                 f"{self.art_seria_IME_box_input.text()}{letter}{local_nominal}{three}S+{self.izolate_voltage_IME_box_input.text()}кВ",
+                                                 fontsize=font_size,
+                                                 color=(0, 0, 0),
+                                                 fontfile=font_path, fontname=font_name)
+
+                        if re.match(r"21$", span_text):
+                            x0, y0, a, b = bbox
+                            a -= 1
+                            bbox = x0, y0, a, b
+                            new_page.add_redact_annot(bbox, fill=[255, 255, 255])
+                            new_page.apply_redactions()
+
+                        if re.match(r"W$", span_text):
+                            x0, y0, a, b = bbox
+                            a -= 1
+                            bbox = x0, y0, a, b
+                            new_page.add_redact_annot(bbox, fill=[255, 255, 255])
+                            new_page.apply_redactions()
+
+                        if re.match(r"37$", span_text):
+                            x0, y0, a, b = bbox
+                            a -= 1
+                            bbox = x0, y0, a, b
+                            new_page.add_redact_annot(bbox, fill=[255, 255, 255])
+                            new_page.apply_redactions()
+                            x_minus = 11
+                            if year == 11 and week == 11:
+                                x_minus = 6
+                            new_page.insert_text((x0 - x_minus, y0 + font_size), f"{year}W{week}",
+                                                 fontsize=font_size,
+                                                 color=(0, 0, 0),
+                                                 fontfile=font_path, fontname=font_name)
+
+                        if re.match(r"T$", span_text):
+                            x0, y0, a, b = bbox
+                            a -= 1
+                            bbox = x0, y0, a, b
+                            new_page.add_redact_annot(bbox, fill=[255, 255, 255])
+                            new_page.apply_redactions()
+
+                        if re.match(r"AS$", span_text):
+                            x0, y0, a, b = bbox
+                            a -= 1
+                            bbox = x0, y0, a, b
+                            new_page.add_redact_annot(bbox, fill=[255, 255, 255])
+                            new_page.apply_redactions()
+
+                        if re.match(r"65$", span_text):
+                            x0, y0, a, b = bbox
+                            a -= 1
+                            bbox = x0, y0, a, b
+                            new_page.add_redact_annot(bbox, fill=[255, 255, 255])
+                            new_page.apply_redactions()
+                            new_page.insert_text((x0 - 9, y0 + font_size), seria,
+                                                 fontsize=font_size,
+                                                 color=(0, 0, 0),
+                                                 fontfile=font_path, fontname=font_name)
+
+                        size = self.size_IME_box_input.text()
+                        if re.match(r"32x65mm 6$", span_text):
+                            x0, y0, a, b = bbox
+                            bbox = x0, y0, a, b
+                            new_page.add_redact_annot(bbox, fill=[255, 255, 255])
+                            new_page.apply_redactions()
+
+                        if re.match(r"00/5AM.L$", span_text):
+                            x0, y0, a, b = bbox
+                            a += 20
+                            bbox = x0, y0, a, b
+                            new_page.add_redact_annot(bbox, fill=[255, 255, 255])
+                            new_page.apply_redactions()
+                            new_page.insert_text((x0 - 32, y0 + font_size), f"{size}mm {nominal}/5AM.L LUNGO",
+                                                 fontsize=font_size,
+                                                 color=(0, 0, 0),
+                                                 fontfile=font_path, fontname=font_name)
+
+    def modify_IME_made_in_box_pdf(self, input_pdf, doc_output, nominal, seria): #TODO
         doc = fitz.open(input_pdf)
         year = self.year_IME_box_input.text()
         week = self.week_IME_box_input.text()
