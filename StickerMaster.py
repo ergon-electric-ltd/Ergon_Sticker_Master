@@ -15,6 +15,7 @@ class StickerGeneratorApp(QWidget):
             "MyriadPro-Regular": "fonts/MyriadPro-Regular.ttf",
             "MyriadPro-Bold": "fonts/MyriadPro-Bold.ttf",
             "Arial-BoldMT": "fonts/arial-mt-bold.ttf",
+            "MyriadPro-Semibold" : "fonts/MyriadPro-Regular.ttf",
             "YVUNJSå¼«Arial-BoldMT": "fonts/4068-font.ttf",  #
             "ArialMT": "fonts/ArialMT-Light.ttf",
             "Bahnschrift": "fonts/bahnschrift.ttf",
@@ -618,7 +619,8 @@ class StickerGeneratorApp(QWidget):
         seria_pattern = r"^(TA|TT|TAS|TASS|TASO)\d+B?$"  # Шаблон для серії
 
         special_article_pattern = r"TASL50C6003S\+1,2/6KV\s{6}TAS65"
-        is_special_template = input_pdf.endswith("_special_1.pdf")
+        is_special_1_template = input_pdf.endswith("_special_1.pdf")
+        is_special_2_template = input_pdf.endswith("_special_2.pdf")
 
         combined_pattern = r"^(TA|TT|TAS|TASS|TASO)\d+[C|B|D]\d+SE\s+(TA|TT|TAS|TASS|TASO)\d+B?"
 
@@ -635,7 +637,6 @@ class StickerGeneratorApp(QWidget):
                         bbox = span["bbox"]  # Позиція тексту
                         font_size = span["size"]  # Розмір шрифту
                         font_name = span["font"]  # Назва шрифту
-
                         font_path = self.font_mapping.get(font_name)
 
                         print(span_text)
@@ -757,7 +758,7 @@ class StickerGeneratorApp(QWidget):
                                                  fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
                                                  fontname=font_name)
 
-                        if is_special_template:
+                        if is_special_1_template:
                             if re.fullmatch(special_article_pattern, span_text):
                                 local_nominal = nominal
                                 letter = "B"
@@ -787,7 +788,7 @@ class StickerGeneratorApp(QWidget):
                                 bbox = x0, y0 + 1, a, b
                                 new_page.add_redact_annot(bbox, fill=[255, 255, 255])
                                 new_page.apply_redactions()
-                                value = float(va.replace(',', '.'))
+                                value = va if not va else float(va.replace(',', '.'))
                                 x0_redac = 1 if value > 9 else 0
                                 if value != int(value):
                                     x0_redac += 3
@@ -799,7 +800,7 @@ class StickerGeneratorApp(QWidget):
                                 bbox = x0, y0 + 1, a, b
                                 new_page.add_redact_annot(bbox, fill=[255, 255, 255])
                                 new_page.apply_redactions()
-                                value = float(va_cl_02.replace(',', '.'))
+                                value = va_cl_02 if not va_cl_02 else float(va_cl_02.replace(',', '.'))
                                 x0_redac = 2 if value > 9 else 0
                                 if value != int(value):
                                     x0_redac += 2
@@ -811,14 +812,62 @@ class StickerGeneratorApp(QWidget):
                                 bbox = x0, y0 + 1, a, b
                                 new_page.add_redact_annot(bbox, fill=[255, 255, 255])
                                 new_page.apply_redactions()
-                                value = float(va_cl_05s.replace(',', '.'))
+                                value = va_cl_05s if not va_cl_05s else float(va_cl_05s.replace(',', '.'))
                                 x0_redac = 1 if value > 9 else 0
                                 if value != int(value):
                                     x0_redac += 2
                                 new_page.insert_text((x0 - x0_redac, y0 + font_size + 1), va_cl_05s,
                                                      fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
                                                      fontname=font_name)
+                        elif is_special_2_template:
+                            if re.match(r"^1$", span_text):
+                                bbox = x0, y0 + 2, a, b-2
+                                new_page.add_redact_annot(bbox, fill=[255, 255, 255])
+                                new_page.apply_redactions()
+                                value = va if not va else float(va.replace(',', '.'))
+                                x0_redac = 1 if value > 9 else 0
+                                if value != int(value):
+                                    x0_redac += 3
+                                new_page.insert_text((x0 - x0_redac, y0 + font_size), va,
+                                                     fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
+                                                     fontname=font_name)
+                            if re.match(r"^100$", span_text):
+                                bbox = x0, y0 + 5, a+5, b
+                                new_page.add_redact_annot(bbox, fill=[255, 255, 255])
+                                new_page.apply_redactions()
+                                new_page.insert_text((x0, y0 + 5), nominal + "A",
+                                                     fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
+                                                     fontname=font_name)
+                            if re.match("TA32750C100", span_text):
+                                font_path = "fonts/MyriadPro-Regular.ttf"
 
+                                x0, y0, a, b = bbox
+                                local_nominal = nominal
+
+                                letter = "B"
+                                try:
+                                    nominal_int = int(nominal)  # Перетворюємо nominal на ціле число
+                                    if 100 <= nominal_int <= 999:  # Перевіряємо, чи nominal 3-значне
+                                        if self.add_3_checkbox.isChecked(): local_nominal += "3"
+                                        letter = "C"
+                                    elif 1000 <= nominal_int <= 9999:  # Перевіряємо, чи nominal 4-значне
+                                        letter = "D"
+                                        local_nominal = nominal_int + 3  # Обчислюємо local_nominal
+                                        x0 -= 2
+                                    else:
+                                        # Обробка ситуації, коли nominal не 3-значне і не 4-значне
+                                        print("nominal має бути 3- або 4-значним числом.")
+                                except ValueError:
+                                    # Обробка помилки, якщо nominal не можна перетворити на ціле число
+                                    print("Помилка: nominal має бути цілим числом.")
+
+                                new_text = f"{self.art_seria_IME_standard_input.text()}{letter}{local_nominal}S+1,2/6kV"
+                                new_page.add_redact_annot(bbox, fill=[255, 255, 255])
+                                new_page.apply_redactions()
+                                x0, y0, a, b = bbox
+                                new_page.insert_text((x0, y0 + font_size), new_text,
+                                                     fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
+                                                     fontname=font_name)
                         else:
                             if re.match(r"^(15|10)$", span_text):
                                 bbox = x0, y0 + 1, a, b
@@ -837,6 +886,7 @@ class StickerGeneratorApp(QWidget):
                                 new_page.insert_text((x0 - minus, y0 + font_size - 0.1), va,
                                                      fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
                                                      fontname=font_name)
+
 
         doc.close()
 
@@ -955,6 +1005,33 @@ class StickerGeneratorApp(QWidget):
                                                  fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
                                                  fontname=font_name)
 
+                        if re.match("TA32750C200S", span_text):
+                            x0, y0, a, b = bbox
+                            local_nominal = nominal
+                            letter = "B"
+                            try:
+                                nominal_int = int(nominal)  # Перетворюємо nominal на ціле число
+                                if 100 <= nominal_int <= 999:  # Перевіряємо, чи nominal 3-значне
+                                    letter = "C"
+                                    if self.add_3_checkbox_box.isChecked(): local_nominal += "3"
+                                elif 1000 <= nominal_int <= 9999:  # Перевіряємо, чи nominal 4-значне
+                                    letter = "D"
+                                    local_nominal = nominal_int + 3  # Обчислюємо local_nominal
+                                    x0 -= 2
+                                else:
+                                    # Обробка ситуації, коли nominal не 3-значне і не 4-значне
+                                    print("nominal має бути 3- або 4-значним числом.")
+                            except ValueError:
+                                # Обробка помилки, якщо nominal не можна перетворити на ціле число
+                                print("Помилка: nominal має бути цілим числом.")
+
+                            new_text = f"{self.art_seria_IME_box_input.text()}{letter}{local_nominal}S+1,2/6kB"
+                            new_page.add_redact_annot(bbox, fill=[255, 255, 255])
+                            new_page.apply_redactions()
+                            x0, y0, a, b = bbox
+                            new_page.insert_text((x0, y0 + font_size), new_text,
+                                                 fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
+                                                 fontname=font_name)
                         # Заміна артикулу на кожній сторінці
                         if re.match(article_pattern, span_text):
                             local_nominal = nominal
