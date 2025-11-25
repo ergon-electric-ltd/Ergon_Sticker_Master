@@ -353,7 +353,9 @@ class StickerGeneratorApp(QWidget):
             self.display_template_preview(self.template_path)
 
             # Відображаємо або приховуємо поля VA залежно від шаблону
-            is_special_template = selected_template.endswith("_special_1")
+            is_special_1 = selected_template.endswith("_special_1")
+            is_special_2 = selected_template.endswith("_special_2")
+            is_special_template = is_special_1 or is_special_2
             self.va_IME_standard_label.setVisible(not is_special_template)
             self.va_IME_standard_input.setVisible(not is_special_template)
             self.va_cl_02s_IME_standard_label.setVisible(is_special_template)
@@ -362,8 +364,8 @@ class StickerGeneratorApp(QWidget):
             self.va_cl_02_IME_standard_input.setVisible(is_special_template)
             self.va_cl_05s_IME_standard_label.setVisible(is_special_template)
             self.va_cl_05s_IME_standard_input.setVisible(is_special_template)
-            self.izolate_voltage_IME_standard_label.setVisible(is_special_template)
-            self.izolate_voltage_IME_standard_input.setVisible(is_special_template)
+            self.izolate_voltage_IME_standard_label.setVisible(is_special_1)
+            self.izolate_voltage_IME_standard_input.setVisible(is_special_1)
         else:
             self.template_path = ""
             self.template_pixmap = None
@@ -788,11 +790,48 @@ class StickerGeneratorApp(QWidget):
                                 bbox = x0, y0 + 1, a, b
                                 new_page.add_redact_annot(bbox, fill=[255, 255, 255])
                                 new_page.apply_redactions()
-                                value = va if not va else float(va.replace(',', '.'))
+                                value = float(va.replace(',', '.'))
                                 x0_redac = 1 if value > 9 else 0
                                 if value != int(value):
                                     x0_redac += 3
                                 new_page.insert_text((x0 - x0_redac, y0 + font_size + 1), va,
+                                                     fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
+                                                     fontname=font_name)
+
+                            if re.match(r"^3$", span_text):
+                                bbox = x0, y0 + 1, a, b
+                                new_page.add_redact_annot(bbox, fill=[255, 255, 255])
+                                new_page.apply_redactions()
+                                value = float(va_cl_02.replace(',', '.'))
+                                x0_redac = 2 if value > 9 else 0
+                                if value != int(value):
+                                    x0_redac += 2
+                                new_page.insert_text((x0 - x0_redac, y0 + font_size + 1), va_cl_02,
+                                                     fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
+                                                     fontname=font_name)
+
+                            if re.match(r"^5$", span_text):
+                                bbox = x0, y0 + 1, a, b
+                                new_page.add_redact_annot(bbox, fill=[255, 255, 255])
+                                new_page.apply_redactions()
+                                value = float(va_cl_05s.replace(',', '.'))
+                                x0_redac = 1 if value > 9 else 0
+                                if value != int(value):
+                                    x0_redac += 2
+                                new_page.insert_text((x0 - x0_redac, y0 + font_size + 1), va_cl_05s,
+                                                     fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
+                                                     fontname=font_name)
+
+                        elif is_special_2_template:
+                            if re.match(r"^1$", span_text):
+                                bbox = x0, y0 + 2, a, b-2
+                                new_page.add_redact_annot(bbox, fill=[255, 255, 255])
+                                new_page.apply_redactions()
+                                value = va if not va else float(va.replace(',', '.'))
+                                x0_redac = 1 if value > 9 else 0
+                                if value != int(value):
+                                    x0_redac += 3
+                                new_page.insert_text((x0 - x0_redac, y0 + font_size), va,
                                                      fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
                                                      fontname=font_name)
 
@@ -819,18 +858,7 @@ class StickerGeneratorApp(QWidget):
                                 new_page.insert_text((x0 - x0_redac, y0 + font_size + 1), va_cl_05s,
                                                      fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
                                                      fontname=font_name)
-                        elif is_special_2_template:
-                            if re.match(r"^1$", span_text):
-                                bbox = x0, y0 + 2, a, b-2
-                                new_page.add_redact_annot(bbox, fill=[255, 255, 255])
-                                new_page.apply_redactions()
-                                value = va if not va else float(va.replace(',', '.'))
-                                x0_redac = 1 if value > 9 else 0
-                                if value != int(value):
-                                    x0_redac += 3
-                                new_page.insert_text((x0 - x0_redac, y0 + font_size), va,
-                                                     fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
-                                                     fontname=font_name)
+
                             if re.match(r"^100$", span_text):
                                 bbox = x0, y0 + 5, a+5, b
                                 new_page.add_redact_annot(bbox, fill=[255, 255, 255])
@@ -838,6 +866,7 @@ class StickerGeneratorApp(QWidget):
                                 new_page.insert_text((x0, y0 + 5), nominal + "A",
                                                      fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
                                                      fontname=font_name)
+
                             if re.match("TA32750C100", span_text):
                                 font_path = "fonts/MyriadPro-Regular.ttf"
 
