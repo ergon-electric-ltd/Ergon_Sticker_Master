@@ -447,6 +447,12 @@ class StickerGeneratorApp(QWidget):
             va_cl_05s = self.va_cl_05s_IME_standard_input.text()
             self.modify_IME_standart_pdf(self.template_path, doc_output, f"{prefix}0001", date_code, nominal,
                                          va_cl_02s, short_prefix, va_cl_02, va_cl_05s)
+        elif "special_2" in self.template_path:
+            va_cl_02s = self.va_cl_02s_IME_standard_input.text()
+            va_cl_02 = self.va_cl_02_IME_standard_input.text()
+            va_cl_05s = self.va_cl_05s_IME_standard_input.text()
+            self.modify_IME_standart_pdf(self.template_path, doc_output, f"{prefix}0001", date_code, nominal,
+                                         va_cl_02s, short_prefix, va_cl_02, va_cl_05s)
         else:
             self.modify_IME_standart_pdf(self.template_path, doc_output, f"{prefix}0001", date_code, nominal, va,
                                          short_prefix)
@@ -531,6 +537,14 @@ class StickerGeneratorApp(QWidget):
                 serial_number = f"{prefix}{i:04}"
                 self.modify_IME_standart_pdf(self.template_path, doc_output, serial_number, date_code, nominal,
                                              va_cl_02s, short_prefix, va_cl_02, va_cl_05s)
+        elif "special_2" in self.template_path:
+            va_cl_02s = self.va_cl_02s_IME_standard_input.text()
+            va_cl_02 = self.va_cl_02_IME_standard_input.text()
+            va_cl_05s = self.va_cl_05s_IME_standard_input.text()
+            for i in range(1, count + 1):
+                serial_number = f"{prefix}{i:04}"
+                self.modify_IME_standart_pdf(self.template_path, doc_output, serial_number, date_code, nominal,
+                                             va_cl_02s, short_prefix, va_cl_02, va_cl_05s)
         else:
             for i in range(1, count + 1):
                 serial_number = f"{prefix}{i:04}"
@@ -563,6 +577,12 @@ class StickerGeneratorApp(QWidget):
         doc_output = fitz.open()  # Новий PDF документ для збереження всіх сторінок
         serial_number = f"{prefix}{i:04}"
         if "special_1" in self.template_path:
+            va_cl_02s = self.va_cl_02s_IME_standard_input.text()
+            va_cl_02 = self.va_cl_02_IME_standard_input.text()
+            va_cl_05s = self.va_cl_05s_IME_standard_input.text()
+            self.modify_IME_standart_pdf(self.template_path, doc_output, serial_number, date_code, nominal,
+                                         va_cl_02s, short_prefix, va_cl_02, va_cl_05s)
+        elif "special_2" in self.template_path:
             va_cl_02s = self.va_cl_02s_IME_standard_input.text()
             va_cl_02 = self.va_cl_02_IME_standard_input.text()
             va_cl_05s = self.va_cl_05s_IME_standard_input.text()
@@ -824,38 +844,38 @@ class StickerGeneratorApp(QWidget):
 
                         elif is_special_2_template:
                             if re.match(r"^1$", span_text):
-                                bbox = x0, y0 + 2, a, b-2
+                                bbox = x0, y0 + 2, a, b - 2
                                 new_page.add_redact_annot(bbox, fill=[255, 255, 255])
                                 new_page.apply_redactions()
-                                value = va if not va else float(va.replace(',', '.'))
+                                value = float(va.replace(',', '.'))
                                 x0_redac = 1 if value > 9 else 0
                                 if value != int(value):
                                     x0_redac += 3
-                                new_page.insert_text((x0 - x0_redac, y0 + font_size), va,
+                                new_page.insert_text((x0 - x0_redac, y0 + font_size + 0.5), va,
                                                      fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
                                                      fontname=font_name)
 
-                            if re.match(r"^3$", span_text):
-                                bbox = x0, y0 + 1, a, b
+                            if re.match(r"^3 $", span_text):
+                                bbox = x0, y0 + 2, a, b - 2
                                 new_page.add_redact_annot(bbox, fill=[255, 255, 255])
                                 new_page.apply_redactions()
-                                value = va_cl_02 if not va_cl_02 else float(va_cl_02.replace(',', '.'))
+                                value = float(va_cl_02.replace(',', '.'))
                                 x0_redac = 2 if value > 9 else 0
                                 if value != int(value):
                                     x0_redac += 2
-                                new_page.insert_text((x0 - x0_redac, y0 + font_size + 0.7), va_cl_02,
+                                new_page.insert_text((x0 - x0_redac, y0 + font_size + 0), va_cl_02,
                                                      fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
                                                      fontname=font_name)
 
                             if re.match(r"^5$", span_text):
-                                bbox = x0, y0 + 1, a, b
+                                bbox = x0, y0 + 2, a, b - 2
                                 new_page.add_redact_annot(bbox, fill=[255, 255, 255])
                                 new_page.apply_redactions()
-                                value = va_cl_05s if not va_cl_05s else float(va_cl_05s.replace(',', '.'))
+                                value = float(va_cl_05s.replace(',', '.'))
                                 x0_redac = 1 if value > 9 else 0
                                 if value != int(value):
                                     x0_redac += 2
-                                new_page.insert_text((x0 - x0_redac, y0 + font_size + 1), va_cl_05s,
+                                new_page.insert_text((x0 - x0_redac, y0 + font_size), va_cl_05s,
                                                      fontsize=font_size, color=(0, 0, 0), fontfile=font_path,
                                                      fontname=font_name)
 
@@ -889,8 +909,9 @@ class StickerGeneratorApp(QWidget):
                                 except ValueError:
                                     # Обробка помилки, якщо nominal не можна перетворити на ціле число
                                     print("Помилка: nominal має бути цілим числом.")
+                                three = "3" if self.add_3_checkbox.isChecked() else ""
 
-                                new_text = f"{self.art_seria_IME_standard_input.text()}{letter}{local_nominal}S+1,2/6kV"
+                                new_text = f"{self.art_seria_IME_standard_input.text()}{letter}{local_nominal}{three}S+1,2/6kV"
                                 new_page.add_redact_annot(bbox, fill=[255, 255, 255])
                                 new_page.apply_redactions()
                                 x0, y0, a, b = bbox
