@@ -1203,7 +1203,7 @@ class StickerGeneratorApp(QWidget):
                             new_page.apply_redactions()
                             three = "3" if self.add_3_checkbox_box.isChecked() else ""
                             new_page.insert_text((x0 + 3, y0 + font_size),
-                                                 f"{self.art_seria_IME_box_input.text()}{letter}{local_nominal}{three}S+{self.izolate_voltage_IME_box_input.text()}кВ",
+                                                 f"{self.art_seria_IME_box_input.text()}{letter}{local_nominal}{three}S+{self.izolate_voltage_IME_box_input.text()}kV",
                                                  fontsize=font_size,
                                                  color=(0, 0, 0),
                                                  fontfile=font_path, fontname=font_name)
