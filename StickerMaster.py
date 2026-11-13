@@ -573,7 +573,7 @@ class StickerGeneratorApp(QWidget):
             return
 
         # Формуємо назву файлу
-        output_pdf = os.path.join(folder, f"{short_prefix} {nominal}A {date_code} #{i}-1шт.pdf")
+        output_pdf = os.path.join(folder, f"{short_prefix} {nominal}A {date_code} {prefix}{i}-1шт.pdf")
         doc_output = fitz.open()  # Новий PDF документ для збереження всіх сторінок
         serial_number = f"{prefix}{i:04}"
         if "special_1" in self.template_path:
@@ -975,7 +975,8 @@ class StickerGeneratorApp(QWidget):
                             bbox = x0, y0, a, b
                             new_page.add_redact_annot(bbox, fill=[255, 255, 255])
                             new_page.apply_redactions()
-                            new_page.insert_text((x0 - 1, y0 + font_size), date_code, fontsize=font_size,
+                            horizontal_margin = 2.5 if input_pdf == "templates\\box_TAS 84 800A.pdf" else 1
+                            new_page.insert_text((x0 - horizontal_margin, y0 + font_size), date_code, fontsize=font_size,
                                                  color=(0, 0, 0),
                                                  fontfile=font_path, fontname=font_name)
 
